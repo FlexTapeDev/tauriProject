@@ -3,23 +3,11 @@ import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 
 function App() {
-  const [_greetMsg, _setGreetMsg] = useState("");
-  const [_name, _setName] = useState("");
-  const [_input, _setInput] = useState("");
-  const [_tauritestcommandMsg, _setTauritestcommandMsg] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-
-  // async function greet() {
-  //   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  //   setGreetMsg(await invoke("greet", { name }));
-  // }
-
-  // async function tauritestcommand() {
-  //   setTauritestcommandMsg(await invoke("tauritestcommand", { input }));
-  // }
+  const [animalType, setAnimalType] = useState("dog");
 
   async function random_image() {
-    setImageUrl(await invoke("random_image"));
+    setImageUrl(await invoke("random_image", { animalType }));
   }
 
   return (
@@ -28,14 +16,20 @@ function App() {
         className="row"
         onSubmit={(e) => {
           e.preventDefault();
-          // greet();
-          // tauritestcommand();
           random_image();
         }}
       >
+        <select 
+          value={animalType} 
+          onChange={(e) => setAnimalType(e.target.value)}
+          className="animal-select"
+        >
+          <option value="dog">Dogs</option>
+          <option value="cat">Cats</option>
+        </select>
         <button type="submit">Generate</button>
       </form>
-      <img src={imageUrl} alt="Random Dog Image" />
+      <img src={imageUrl} alt={`Random ${animalType} Image`} />
     </main>
   );
 }

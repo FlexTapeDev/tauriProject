@@ -12,18 +12,27 @@ fn tauritestcommand(input: &str) -> String {
 }
 
 #[tauri::command]
-async fn random_image() -> String {
-    // https://cataas.com/cat
-    let response = reqwest::get("https://dog.ceo/api/breeds/image/random")
+async fn random_image(animal_type: String) -> Result<String, String> {
+    let url = if animal_type == "cat" {
+        "https://api.thecatapi.com/v1/images/search"
+    } else {
+        "https://dog.ceo/api/breeds/image/random"
+    };
+
+    let response = reqwest::get(url)
         .await
-        .unwrap()
+        .map_err(|e| e.to_string())?
         .json::<serde_json::Value>()
         .await
-        .unwrap();
+        .map_err(|e| e.to_string())?;
 
-    let image_url = response["message"].as_str().unwrap().to_string();
+    let image_url = if animal_type == "cat" {
+        response[0]["url"].as_str().unwrap().to_string()
+    } else {
+        response["message"].as_str().unwrap().to_string()
+    };
 
-    format!("{}", image_url)
+    Ok(image_url)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
